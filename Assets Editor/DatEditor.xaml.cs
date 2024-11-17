@@ -2289,64 +2289,64 @@ namespace Assets_Editor
             }
         }
 
-        private void ExportAllToJsonButton_Click(object sender, RoutedEventArgs e)
+        private void ExportAllToTxtButton_Click(object sender, RoutedEventArgs e)
         {
-            // Criar o SaveFileDialog
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+                FileName = "Export"
+            };
 
-            // Definir um filtro para o tipo de arquivo (txt)
-            saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
-
-            // Mostrar o diálogo para o usuário escolher onde salvar o arquivo
             bool? result = saveFileDialog.ShowDialog();
 
-            // Verificar se o usuário selecionou um local
             if (result == true)
             {
-                // Obter o caminho completo do arquivo escolhido pelo usuário
-                string filePath = saveFileDialog.FileName;
-
-                // Obter o número de itens na lista
+                string finalFilePath = saveFileDialog.FileName;
                 int itemCount = ObjListView.Items.Count;
+                int batchSize = 5000; // Processar em blocos de 5000 itens para melhor desempenho
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-                // Loop através dos itens no ListView
-                for (int i = 0; i < itemCount; i++)
+                try
                 {
-                    // Alterar o índice selecionado no ListView para o item atual
-                    ObjListView.SelectedIndex = i;
-
-                    // Obter o conteúdo do TextBox para o item atual
-                    string fullInfoText = A_FullInfo.Text;
-
-                    try
+                    using (StreamWriter writer = new StreamWriter(finalFilePath, false, System.Text.Encoding.UTF8, 65536)) // Buffer maior
                     {
-                        // Usar StreamWriter para adicionar o conteúdo ao arquivo (não sobrescrever)
-                        using (StreamWriter writer = new StreamWriter(filePath, append: true))
+                        // Processamento por blocos para reduzir operações na interface gráfica
+                        for (int startIndex = 0; startIndex < itemCount; startIndex += batchSize)
                         {
-                            // Escrever o conteúdo do TextBox no arquivo com uma nova linha
-                            writer.WriteLine(fullInfoText);
+                            int endIndex = Math.Min(startIndex + batchSize, itemCount);
+                            var lines = new List<string>();
+
+                            // Processa cada item no bloco
+                            for (int i = startIndex; i < endIndex; i++)
+                            {
+                                // Atualiza SelectedIndex para acionar a lógica necessária
+                                ObjListView.Dispatcher.Invoke(() =>
+                                {
+                                    ObjListView.SelectedIndex = i;
+                                });
+
+                                // Captura o texto atualizado
+                                string fullInfoText = A_FullInfo.Text;
+                                lines.Add(fullInfoText);
+                            }
+
+                            // Grava o bloco inteiro no arquivo
+                            writer.Write(string.Join(Environment.NewLine, lines));
                         }
+                    }
 
-                        // Mostrar uma mensagem informando que o arquivo foi salvo com sucesso
-                        // Mas você pode opcionalmente não mostrar uma mensagem após cada exportação,
-                        // ou apenas uma ao final do processo.
-                    }
-                    catch (Exception ex)
-                    {
-                        // Mostrar uma mensagem de erro caso haja problemas ao salvar o arquivo
-                        MessageBox.Show($"Erro ao salvar o arquivo: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    stopwatch.Stop();
+                    MessageBox.Show($"Exportação concluída com sucesso! Arquivo final: {finalFilePath}\nTempo total: {stopwatch.Elapsed.TotalSeconds:F2} segundos",
+                                    "Concluído",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Information);
                 }
-
-                // Resetar o índice selecionado para 0 após a exportação
-                ObjListView.SelectedIndex = 0;
-
-                // Opcional: Mostrar uma mensagem ao final do processo, indicando que a exportação foi concluída
-                MessageBox.Show("Exportação concluída com sucesso!", "Concluído", MessageBoxButton.OK, MessageBoxImage.Information);
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erro ao criar o arquivo final: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
-
-
 
         private void AddExportObject_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
