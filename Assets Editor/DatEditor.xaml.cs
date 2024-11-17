@@ -2289,6 +2289,65 @@ namespace Assets_Editor
             }
         }
 
+        private void ExportAllToJsonButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Criar o SaveFileDialog
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            // Definir um filtro para o tipo de arquivo (txt)
+            saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+
+            // Mostrar o diálogo para o usuário escolher onde salvar o arquivo
+            bool? result = saveFileDialog.ShowDialog();
+
+            // Verificar se o usuário selecionou um local
+            if (result == true)
+            {
+                // Obter o caminho completo do arquivo escolhido pelo usuário
+                string filePath = saveFileDialog.FileName;
+
+                // Obter o número de itens na lista
+                int itemCount = ObjListView.Items.Count;
+
+                // Loop através dos itens no ListView
+                for (int i = 0; i < itemCount; i++)
+                {
+                    // Alterar o índice selecionado no ListView para o item atual
+                    ObjListView.SelectedIndex = i;
+
+                    // Obter o conteúdo do TextBox para o item atual
+                    string fullInfoText = A_FullInfo.Text;
+
+                    try
+                    {
+                        // Usar StreamWriter para adicionar o conteúdo ao arquivo (não sobrescrever)
+                        using (StreamWriter writer = new StreamWriter(filePath, append: true))
+                        {
+                            // Escrever o conteúdo do TextBox no arquivo com uma nova linha
+                            writer.WriteLine(fullInfoText);
+                        }
+
+                        // Mostrar uma mensagem informando que o arquivo foi salvo com sucesso
+                        // Mas você pode opcionalmente não mostrar uma mensagem após cada exportação,
+                        // ou apenas uma ao final do processo.
+                    }
+                    catch (Exception ex)
+                    {
+                        // Mostrar uma mensagem de erro caso haja problemas ao salvar o arquivo
+                        MessageBox.Show($"Erro ao salvar o arquivo: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+
+                // Resetar o índice selecionado para 0 após a exportação
+                ObjListView.SelectedIndex = 0;
+
+                // Opcional: Mostrar uma mensagem ao final do processo, indicando que a exportação foi concluída
+                MessageBox.Show("Exportação concluída com sucesso!", "Concluído", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+
+
         private void AddExportObject_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             List<ShowList> selectedItems = ObjListView.SelectedItems.Cast<ShowList>().ToList();

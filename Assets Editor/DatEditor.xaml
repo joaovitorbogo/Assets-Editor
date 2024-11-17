@@ -583,8 +583,15 @@
                     </TabItem>
                 </TabControl>
                 <Border Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource PrimaryHueMidBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10,0,0,10">
-                    <materialDesign:Snackbar  x:Name="StatusBar" MessageQueue="{materialDesign:MessageQueue}" IsActive="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ScrollViewer.VerticalScrollBarVisibility="Disabled" Padding="0,-20,0,0" />
+                    <StackPanel VerticalAlignment="Stretch">
+                        <!-- Snackbar -->
+                        <materialDesign:Snackbar x:Name="StatusBar" MessageQueue="{materialDesign:MessageQueue}" IsActive="False" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ScrollViewer.VerticalScrollBarVisibility="Disabled" Padding="0,-20,0,0" />
+
+                        <!-- Botão abaixo do Snackbar -->
+                        <Button Content="Export all to JSON" Click="ExportAllToJsonButton_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" />
+                    </StackPanel>
                 </Border>
+
             </Grid>
             <GroupBox Grid.Row="0" Grid.Column="2" Header="Sprite List" Width="225" HorizontalAlignment="Right" Margin="10,5,10,10" VerticalAlignment="Stretch">
                 <GroupBox.HeaderTemplate>
